@@ -5,12 +5,22 @@ const jwt = require('jsonwebtoken');
 const config = require('config');
 const { check, validationResult } = require('express-validator');
 const User = require('../models/User');
+const auth = require('../middleware/auth');
 
 // @route   GET api/auth
 // @desc     Get logged in user
 // @access  Private
-router.get('/', (req, res) => {
-  res.send('Get logged in user');
+// Private 한 동작을 하는 route를 대상으로 호출할 때마다 middleware를 호출해서 토큰을 검사한다.
+// 어떻게 DI처럼 동작하는거지 밑에는?
+// -> callback으로 호출이 된다. 같은 방식으로 체이닝을 하듯 router('/', test1, test2, test3...) 이런식으로도 쓸 수 있다.
+router.get('/', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('-password');
+    res.json(user);
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).send('Server error');
+  }
 });
 
 // @route   POST api/auth
@@ -55,7 +65,7 @@ router.post('/', [
       console.error(err.message);
       res.status(500).send('Server Error');
     }
-    res.send('asdf')  // 이게 있으면 이게 자꾸 response 보내는 걸 가로챈다...
+    // res.send('asdf')  // 이게 있으면 이게 자꾸 response 보내는 걸 가로챈다...
   });
 
 module.exports = router;
