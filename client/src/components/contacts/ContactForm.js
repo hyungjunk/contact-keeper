@@ -4,7 +4,7 @@ import ContactContext from '../../context/contact/contactContext';
 export const ContactForm = () => {
 
   const contactContext = useContext(ContactContext);
-  const { addContact, current } = contactContext;
+  const { addContact, clearCurrent, current, updateContact } = contactContext;
 
   useEffect(() => {
     if (current !== null) {
@@ -17,7 +17,7 @@ export const ContactForm = () => {
         type: 'personal',
       })
     }
-  }, [contactContext, current])
+  }, [contactContext, current]) // What if only current?
 
   const [contact, setContact] = useState({
     name: '',
@@ -31,19 +31,18 @@ export const ContactForm = () => {
   };
   const onSubmit = e => {
     e.preventDefault();
-    addContact(contact);
-    setContact({
-      name: '',
-      email: '',
-      phone: '',
-      type: 'personal',
-    })
+    if (current === null) {
+      addContact(contact);
+    } else {
+      updateContact(contact)
+    }
+    clearCurrent();
   };
 
 
   return (
     <form onSubmit={onSubmit}>
-      <h2 className="text-primary">Add Contact</h2>
+      <h2 className="text-primary">{current === null ? 'Add Contact' : 'Edit Contact'}</h2>
       <input
         type="text"
         name="name"
@@ -79,8 +78,13 @@ export const ContactForm = () => {
       /> Professional{' '}
 
       <div>
-        <input type="submit" value="Add Contact"
+        <input type="submit" value={current === null ? 'Add Contact' : 'Edit Contact'}
           className="btn btn-primary btn-block" />
+        {current &&
+          <button className="btn btn-secondary btn-block" onClick={() => clearCurrent()} >
+            Clear
+          </button>
+        }
       </div>
     </form>
   )
