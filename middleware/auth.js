@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const config = require('config');
 
 module.exports = function (req, res, next) {
-  // 아하 이게 callback을 받나보네?
+  // 이게 ?의 callback을 받음
 
   // Get token from header
   const token = req.header('x-auth-token');
